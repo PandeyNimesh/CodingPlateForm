@@ -8,7 +8,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 // Register
 authRouter.post('/register', register);
 authRouter.post('/login', login);
-authRouter.post('/logout', userMiddleware, logout);
+authRouter.post('/logout', logout);
 authRouter.post('/admin/register', adminMiddleware ,adminRegister);
 // authRouter.get('/getProfile',getProfile);
 
