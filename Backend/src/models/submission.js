@@ -19,7 +19,7 @@ const submissionSchema = new Schema({
   language: {
     type: String,
     required: true,
-    enum: ['javascript', 'cpp', 'java'] 
+    enum: ['javascript', 'c++', 'java'] 
   },
   status: {
     type: String,
@@ -49,5 +49,6 @@ const submissionSchema = new Schema({
 }, { 
   timestamps: true
 });
+const Submission = mongoose.model('submission',submissionSchema)
 
-module.exports = submissionSchema;
+module.exports = Submission;
