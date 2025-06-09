@@ -74,6 +74,13 @@ const submitCode = async (req,res)=>{
         submittedResult.memory = memory;
 
         await submittedResult.save();
+
+        //insert problem id into schema if it is not present there
+
+      if(!req.result.problemSolved.includes(problemId)){
+        req.result.problemSolved.push(problemId);
+        await req.result.save();
+      }
         res.status(201).send(submittedResult);
 
     }

@@ -1,5 +1,6 @@
 const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility");
 const Problem=require("../models/problem");
+const User =require("../models/user")
 
 const createProblem=async (req,res)=>{
 
@@ -12,7 +13,7 @@ const createProblem=async (req,res)=>{
 
         for(const {language,completeCode} of referenceSolution){
 
-        const languageId=getLanguageById(language)
+        const languageId= await getLanguageById(language)
 
         const submissions = visibleTestCases.map((testcase)=>({
             source_code:completeCode,
@@ -54,7 +55,6 @@ const createProblem=async (req,res)=>{
 
 
 }
-
 
 const updateProblem = async (req,res)=>{
 
@@ -182,9 +182,69 @@ catch(err){
 
 }
 
-// const solvedAllProblemByUser = async (req,res)=>{
+const solvedAllProblemByUser = async (req,res)=>{
+   
+    try{
+        const userId= req.result._id;
+        const user=await User.findById(userId).populate({
+            path:"problemSolved",
+            select:"_id title difficulty tags "
+        });
+       
+        const count =req.result.problemSolved.length;
+       res.status(200).send({
+        count,
+        user: user.problemSolved
+       });
+    }
+
+    catch(error){
+        res.status(500).send("Internal server error ",+error);
+    }
+}
+
+const runcode = async(req,res)=>{
+    
+ try{
+         const userId = req.result._id;
+         const problemId = req.params.id;
+       
+         const {code , language} = req.body;
+
+         if(!userId||!problemId ||!language){
+           return res.status(404).send("Some field missing");
+         }
+
+         const problem = await Problem.findById(problemId);
+          
+
+         const languageId  = await getLanguageById(language);
+          const submissions = problem.visibleTestCases.map((testcase)=>({
+            source_code:code,
+            language_id:languageId,
+            stdin:testcase.input,
+            expected_output:testcase.output
+        }));
+
+         const submitResult = await submitBatch(submissions);
+
+         const resultToken = submitResult.map((value)=>value.token);
+
+         const testResult = await submitToken(resultToken);
+
+        res.status(201).send(testResult);
+
+    }
+
+    catch(error){
+        res.status(500).send("Internal server error "+ error);
+
+    }
 
 
-//
+}
 
-module.exports={createProblem,updateProblem,deleteProblem,getProblemById,getAllProblem}
+
+
+
+module.exports={createProblem,updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblemByUser,runcode}
