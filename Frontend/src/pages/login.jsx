@@ -12,7 +12,7 @@ const signupSchema = z.object({
 });
 
 function Login() {
-
+console.log("hello")
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
