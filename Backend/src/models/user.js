@@ -12,6 +12,7 @@ const userSchema = new Schema({
         type:String,
         minLength:3,
         maxLength:20,
+        required:false
     },
     emailId:{
         type:String,
@@ -25,11 +26,13 @@ const userSchema = new Schema({
         type:Number,
         min:6,
         max:80,
+        required:false
     },
     role:{
         type:String,
         enum:['user','admin'],
-        default: 'user'
+        default: 'user',
+        required:false
     },
     problemSolved:{
         type:[{

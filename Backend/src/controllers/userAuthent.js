@@ -8,24 +8,22 @@ const Submission = require("../models/submission");
 
 
 const register = async (req, res) => {
-
     try {
         // validate the data;
-
         validate(req.body);
         const { firstName, emailId, password } = req.body;
-
         req.body.password = await bcrypt.hash(password, 10);
-        req.body.role = 'user'
-        //
-        const user = await User.create(req.body);
+        let role = 'user'
+
+        const user = await User.create({ firstName, emailId, password, role });
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: 'user' }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
         const reply = {
             firstName: user.firstName,
             emailId: user.emailId,
-            _id: user._id
-            
+            _id: user._id,
+            role
         }
+        console.log(reply);
         res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
         res.status(201).json({
             user: reply,
@@ -33,8 +31,8 @@ const register = async (req, res) => {
         })
     }
     catch (err) {
+        /// validation require for password()
         res.status(400).json({ message: err.message });
-
     }
 }
 
@@ -59,7 +57,8 @@ const login = async (req, res) => {
         const reply = {
             firstName: user.firstName,
             emailId: user.emailId,
-            _id: user._id
+            _id: user._id,
+            role: req.result.role,
         }
 
         const token = jwt.sign({ _id: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
@@ -75,8 +74,6 @@ const login = async (req, res) => {
     }
 }
 
-
-// logOut feature
 
 const logout = async (req, res) => {
 

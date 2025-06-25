@@ -8,12 +8,14 @@ const submitCode = async (req,res)=>{
          const userId = req.result._id;
          const problemId = req.params.id;
        
-         const {code , language} = req.body;
+         let {code , language} = req.body;
 
          if(!userId||!problemId ||!language){
            return res.status(404).send("Some field missing");
          }
-
+         if(language=="cpp"){
+          language="c++"
+         }
          const problem = await Problem.findById(problemId);
           
          const submittedResult = await Submission.create({
@@ -80,9 +82,18 @@ const submitCode = async (req,res)=>{
         req.result.problemSolved.push(problemId);
         await req.result.save();
       }
-        res.status(201).send(submittedResult);
+        // res.status(201).send(submittedResult);
+        const accepted=(status == 'accepted')
+         res.status(201).json({
+          accepted,
+          totalTestCases:submittedResult.testCaseTotal,
+          passedTestCases:testCasesPassed,
+          runtime,
+          memory
+         });
 
     }
+
 
     catch(error){
         res.status(500).send("Internal server error "+ error);
